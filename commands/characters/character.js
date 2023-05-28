@@ -61,6 +61,7 @@ module.exports = {
               { name: 'attunement', value: 'attunement' }
             )
         )
+        .addStringOption(option => option.setName('value').setDescription('Value to change to.').setRequired(true))
       )
       .addSubcommand(subcommand =>
         subcommand
@@ -101,7 +102,8 @@ module.exports = {
             const charWeapon = interaction.options.getInteger('weapon');
             const charPower = interaction.options.getInteger('power');
             const charAttunement = interaction.options.getString('attunement');
-            const charUser = interaction.options.getUser('user');
+            const charUser = interaction.options.getUser('user').id;
+            const charUserId = parseInt(charUser);
       
             const replyMessage = await addCharacterToDatabase(
               charName,
@@ -118,7 +120,7 @@ module.exports = {
               charWeapon,
               charPower,
               charAttunement,
-              charUser
+              charUserId
             );
       
             return interaction.editReply(replyMessage);
@@ -127,7 +129,13 @@ module.exports = {
             return interaction.editReply('You do not have permission to use this command.');
           }
         } else if (interaction.options.getSubcommand() === 'edit') {
-          return interaction.editReply('You do not have permission to use this command.');
+
+
+          // TODO: implement edit command
+          return interaction.editReply('Not yet implemented.');
+
+
+
         } else if (interaction.options.getSubcommand() === 'view') {
           const charList = await Character.findAll();
           const attributes = Object.keys(Character.rawAttributes); // Retrieve attribute names
