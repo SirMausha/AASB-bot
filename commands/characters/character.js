@@ -1,3 +1,4 @@
+const { sequelize, Character } = require('../../db');
 const { SlashCommandBuilder, Role, PermissionFlagsBits } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
 
@@ -28,7 +29,7 @@ module.exports = {
           .addIntegerOption(option => option.setName('weapon').setDescription('Character weapon').setRequired(true))
           .addIntegerOption(option => option.setName('power').setDescription('Character power').setRequired(true))
           .addStringOption(option => option.setName('attunement').setDescription('Character attunement').setRequired(true))
-          .addUserOption(option => option.setName('user').setDescription('Owner of the character'))
+          .addUserOption(option => option.setName('user').setDescription('Owner of the character').setRequired(true))
       )
     )
     .addSubcommandGroup(subcommandGroup =>
@@ -60,39 +61,140 @@ module.exports = {
               { name: 'attunement', value: 'attunement' }
             )
         )
-    ),
+      )
+      .addSubcommand(subcommand =>
+        subcommand
+        .setName('view')
+        .setDescription('Views a character')),
 
     async execute(interaction) {
 
-      // Check the subcommand and handle permissions accordingly
-      if (interaction.options.getSubcommand() === 'create') {
-
-        // Check if the user has the necessary permission for the subcommand group
-        const isAdmin = interaction.member.roles.cache.some(role => role.id === '1108507806950228129');
-
-        if (isAdmin) {
-
-          // Execute the command logic for creating a character
-          await interaction.reply('bob');
-
-        } else {
-
-          // User does not have permission, send an error message
-          await interaction.reply('You do not have permission to use this command.');
-
-        }
-      } else if (interaction.options.getSubcommand() === 'edit') {
-
-          await interaction.reply('You do not have permission to use this command.');
-
+      try {
+        await execute(interaction)
+      } catch (error) {
+        console.error(error);
+        return interaction.editReply('An error occurred while executing the command.');
       }
+
+      // Check the subcommand and handle permissions accordingly
+      async function execute(interaction) {
+        // Check the subcommand and handle permissions accordingly
+        if (interaction.options.getSubcommand() === 'create') {
+          await interaction.deferReply();
+      
+          // Check if the user has the necessary permission for the subcommand group
+          const isAdmin = interaction.member.roles.cache.some(role => role.id === '1108507806950228129');
+      
+          if (isAdmin) {
+            // Execute the command logic for creating a character
+            const charName = interaction.options.getString('name');
+            const charHealth = interaction.options.getInteger('health_max');
+            const charPosture = interaction.options.getInteger('posture_max');
+            const charEther = interaction.options.getInteger('ether_max');
+            const charInsanity = interaction.options.getInteger('insanity_cap');
+            const charStrength = interaction.options.getInteger('strength');
+            const charFortitude = interaction.options.getInteger('fortitude');
+            const charAgility = interaction.options.getInteger('agility');
+            const charIntelligence = interaction.options.getInteger('intelligence');
+            const charWillpower = interaction.options.getInteger('willpower');
+            const charCharisma = interaction.options.getInteger('charisma');
+            const charWeapon = interaction.options.getInteger('weapon');
+            const charPower = interaction.options.getInteger('power');
+            const charAttunement = interaction.options.getString('attunement');
+            const charUser = interaction.options.getUser('user');
+      
+            const replyMessage = await addCharacterToDatabase(
+              charName,
+              charHealth,
+              charPosture,
+              charEther,
+              charInsanity,
+              charStrength,
+              charFortitude,
+              charAgility,
+              charIntelligence,
+              charWillpower,
+              charCharisma,
+              charWeapon,
+              charPower,
+              charAttunement,
+              charUser
+            );
+      
+            return interaction.editReply(replyMessage);
+          } else {
+            // User does not have permission, send an error message
+            return interaction.editReply('You do not have permission to use this command.');
+          }
+        } else if (interaction.options.getSubcommand() === 'edit') {
+          return interaction.editReply('You do not have permission to use this command.');
+        } else if (interaction.options.getSubcommand() === 'view') {
+          const charList = await Character.findAll();
+          const attributes = Object.keys(Character.rawAttributes); // Retrieve attribute names
+          
+          let charString = '';
+          for (const char of charList) {
+            charString += `Character ID: ${char.id}\n`;
+            for (const attribute of attributes) {
+              charString += `${attribute}: ${char[attribute]}\n`;
+            }
+            charString += '\n';
+          }
+        
+          if (charString === '') {
+            charString = 'No characters found.';
+          }
+          
+          await interaction.reply(`List of characters:\n${charString}`);
+        }
+      }
+
+
+
+      async function addCharacterToDatabase(name, healthMax, postureMax, etherMax, insanityCap, strength, fortitude, agility, intelligence, willpower, charisma, weapon, power, attunement, user) {
+        const charHealth = healthMax;
+        const charPosture = postureMax;
+        const charEther = etherMax;
+        const charInsanity = insanityCap;
+      
+        try {
+          // Add character to database
+          const character = await Character.create({
+            name: name,
+            health: charHealth,
+            healthMax: healthMax,
+            posture: charPosture,
+            postureMax: postureMax,
+            ether: charEther,
+            etherMax: etherMax,
+            insanity: charInsanity,
+            insanityCap: insanityCap,
+            strength: strength,
+            fortitude: fortitude,
+            agility: agility,
+            intelligence: intelligence,
+            willpower: willpower,
+            charisma: charisma,
+            weapon: weapon,
+            power: power,
+            attunement: attunement,
+            user: user,
+          });
+      
+          return `Character ${character.name} added.`;
+        } catch (error) {
+          console.error('Error adding character:', error);
+          if (error.name === 'SequelizeUniqueConstraintError') {
+            return 'Character already exists!';
+          }
+      
+          return 'Something went wrong with adding a character. Check your parameters, or reach out to Jin if the issue persists.';
+        }
+      }
+      
     },
 };
 
-
-function addCharacterToDatabase() {
-  
-}
 
 function editCharacter() {
 

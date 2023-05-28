@@ -2,43 +2,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
+const { Character } = require('./db');
 
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // Database
-const Sequelize = require('sequelize');
-const sequelize = new Sequelize('database', 'user', 'password', {
-	host: 'localhost',
-	dialect: 'sqlite',
-	logging: false,
-	storage: 'database.sqlite',
-});
-
-const Character = sequelize.define('characters', {
-	uuid: {
-		type: Sequelize.INTEGER,
-		unique: true,
-	},
-	name: Sequelize.TEXT,
-	health: Sequelize.INTEGER,
-	healthMax: Sequelize.INTEGER,
-	posture: Sequelize.INTEGER,
-	postureMax: Sequelize.INTEGER,
-	ether: Sequelize.INTEGER,
-	etherMax: Sequelize.INTEGER,
-	insanity: Sequelize.INTEGER,
-	insanityCap: Sequelize.INTEGER,
-	strength: Sequelize.INTEGER,
-	fortitude: Sequelize.INTEGER,
-	agility: Sequelize.INTEGER,
-	intelligence: Sequelize.INTEGER,
-	willpower: Sequelize.INTEGER,
-	charisma: Sequelize.INTEGER,
-	weapon: Sequelize.INTEGER,
-	power: Sequelize.INTEGER,
-	attunement: Sequelize.TEXT,
-});
+const { sequelize } = require('./db');
 
 client.cooldowns = new Collection();
 client.commands = new Collection();
