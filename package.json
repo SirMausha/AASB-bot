@@ -1,0 +1,17 @@
+{
+  "name": "aasb-bot",
+  "version": "1.0.0",
+  "description": "A bot for the As Above, So Below roleplay",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Jin#3456",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.11.0",
+    "sequelize": "^6.31.1",
+    "sqlite3": "^5.1.6"
+  }
+}
