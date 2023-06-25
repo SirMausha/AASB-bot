@@ -8,7 +8,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 
 const Character = sequelize.define('characters', {
 	uuid: {
-		type: Sequelize.INTEGER,
+		type: Sequelize.STRING,
 		unique: true,
 	},
 	name: Sequelize.TEXT,

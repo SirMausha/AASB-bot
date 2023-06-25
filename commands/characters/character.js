@@ -67,21 +67,21 @@ module.exports = {
         subcommand
           .setName('view')
           .setDescription('Views a character')
-          .addUserOption(option => option.setName('user').setDescription('Whose character do you want to view (leave blank if your own)'))
+          .addUserOption(option => option.setName('user').setDescription('Whose character do you want to view (ping yourself if your)').setRequired(true))
       )
     ),
 
     async execute(interaction) {
 
       try {
-        await execute(interaction)
+        await executeCommand(interaction)
       } catch (error) {
         console.error(error);
         return interaction.editReply('An error occurred while executing the command.');
       }
 
       // Check the subcommand and handle permissions accordingly
-      async function execute(interaction) {
+      async function executeCommand(interaction) {
         // Check the subcommand and handle permissions accordingly
         if (interaction.options.getSubcommand() === 'create') {
           await interaction.deferReply();
@@ -105,8 +105,8 @@ module.exports = {
             const charWeapon = interaction.options.getInteger('weapon');
             const charPower = interaction.options.getInteger('power');
             const charAttunement = interaction.options.getString('attunement');
-            const charUser = interaction.options.getUser('user').id;
-            const charUserId = parseInt(charUser);
+            const charUserId = interaction.options.getUser('user').id;
+            // const charUserId = parseInt(charUser);
       
             const replyMessage = await addCharacterToDatabase(
               charName,
@@ -141,30 +141,13 @@ module.exports = {
 
         } else if (interaction.options.getSubcommand() === 'view') {
 
-          let characterOwner;
-
-          if (interaction.options.getUser('user')) {
-            const user = interaction.options.getUser('user').id;
-            characterOwner = parseInt(user);
+          try {
+            await viewCharacter(interaction);
+          } catch (error) {
+            console.error(error);
+            return interaction.editReply('There was an error while viewing the character!');
           }
 
-          const charList = await Character.findAll();
-          const attributes = Object.keys(Character.rawAttributes); // Retrieve attribute names
-          
-          let charString = '';
-          for (const char of charList) {
-            charString += `Character ID: ${char.id}\n`;
-            for (const attribute of attributes) {
-              charString += `${attribute}: ${char[attribute]}\n`;
-            }
-            charString += '\n';
-          }
-        
-          if (charString === '') {
-            charString = 'No characters found.';
-          }
-          
-          await interaction.editReply(`List of characters:\n${charString}`);
         }
       }
 
@@ -208,6 +191,51 @@ module.exports = {
           }
       
           return 'Something went wrong with adding a character. Check your parameters, or reach out to Jin if the issue persists.';
+        }
+      }
+
+      async function viewCharacter(interaction) {
+        let characterOwner;
+    
+        if (interaction.options.getUser('user')) {
+          const user = interaction.options.getUser('user').id;
+          characterOwner = user;
+        }
+    
+        try {
+          const charList = await Character.findAll({
+            where: { uuid: characterOwner },
+            raw: true,
+          });
+          
+          if (charList.length === 0) {
+            return interaction.reply('No characters found.');
+          }
+    
+          let charString = '';
+          for (const char of charList) {
+            charString += `Character ID: ${char.id}\n`;
+            charString += `Owner UUID: ${char.uuid}\n`; 
+            charString += `Name: ${char.name}\n`;
+            charString += `Max Health: ${char.healthMax}\n`;
+            charString += `Max Posture: ${char.postureMax}\n`;
+            charString += `Max Ether: ${char.etherMax}\n`;
+            charString += `Insanity Cap: ${char.insanityCap}\n`;
+            charString += `Strength: ${char.strength}\n`;
+            charString += `Fortitude: ${char.fortitude}\n`;
+            charString += `Agility: ${char.agility}\n`;
+            charString += `Intelligence: ${char.intelligence}\n`;
+            charString += `Willpower: ${char.willpower}\n`;
+            charString += `Charisma: ${char.charisma}\n`;
+            charString += `Weapon: ${char.weapon}\n`;
+            charString += `Power: ${char.power}\n`;
+            charString += `Attunement: ${char.attunement}\n\n`;
+          }
+          
+          await interaction.reply(`List of characters:\n${charString}`);
+        } catch (error) {
+          console.error('Error viewing characters:', error);
+          return interaction.reply('There was an error while viewing the character.');
         }
       }
       
