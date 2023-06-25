@@ -35,7 +35,7 @@ module.exports = {
     .addSubcommandGroup(subcommandGroup =>
       subcommandGroup
       .setName('user')
-      .setDescription('User commands'))
+      .setDescription('User commands')
       .addSubcommand(subcommand =>
       subcommand
         .setName('edit')
@@ -65,8 +65,11 @@ module.exports = {
       )
       .addSubcommand(subcommand =>
         subcommand
-        .setName('view')
-        .setDescription('Views a character')),
+          .setName('view')
+          .setDescription('Views a character')
+          .addUserOption(option => option.setName('user').setDescription('Whose character do you want to view (leave blank if your own)'))
+      )
+    ),
 
     async execute(interaction) {
 
@@ -132,11 +135,19 @@ module.exports = {
 
 
           // TODO: implement edit command
-          return interaction.editReply('Not yet implemented.');
+          return interaction.reply('Not yet implemented.');
 
 
 
         } else if (interaction.options.getSubcommand() === 'view') {
+
+          let characterOwner;
+
+          if (interaction.options.getUser('user')) {
+            const user = interaction.options.getUser('user').id;
+            characterOwner = parseInt(user);
+          }
+
           const charList = await Character.findAll();
           const attributes = Object.keys(Character.rawAttributes); // Retrieve attribute names
           
@@ -153,7 +164,7 @@ module.exports = {
             charString = 'No characters found.';
           }
           
-          await interaction.reply(`List of characters:\n${charString}`);
+          await interaction.editReply(`List of characters:\n${charString}`);
         }
       }
 
@@ -186,7 +197,7 @@ module.exports = {
             weapon: weapon,
             power: power,
             attunement: attunement,
-            user: user,
+            uuid: user,
           });
       
           return `Character ${character.name} added.`;
