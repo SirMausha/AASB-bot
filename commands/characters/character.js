@@ -77,7 +77,7 @@ module.exports = {
     // Command logic
     async execute(interaction) {
 
-      // Attempt the command and throw an error if 
+      // Attempt the command and throw an error if unsuccessful
       try {
         await executeCommand(interaction)
       } catch (error) {
@@ -133,7 +133,7 @@ module.exports = {
       
             return interaction.editReply(replyMessage);
           } else {
-            // User does not have permission, send an error message
+            // User does not have permission, notify them.
             return interaction.editReply('You do not have permission to use this command.');
           }
         } else if (interaction.options.getSubcommand() === 'edit') {
