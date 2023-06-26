@@ -72,14 +72,17 @@ module.exports = {
           .addUserOption(option => option.setName('user').setDescription('Whose character do you want to view (ping yourself if your)').setRequired(true))
       )
     ),
+    
 
+    // Command logic
     async execute(interaction) {
 
+      // Attempt the command and throw an error if 
       try {
         await executeCommand(interaction)
       } catch (error) {
         console.error(error);
-        return interaction.editReply('An error occurred while executing the command.');
+        return interaction.editReply('An error occurred while executing the command. ERR: C1');
       }
 
       // Check the subcommand and handle permissions accordingly
@@ -108,8 +111,8 @@ module.exports = {
             const charPower = interaction.options.getInteger('power');
             const charAttunement = interaction.options.getString('attunement');
             const charUserId = interaction.options.getUser('user').id;
-            // const charUserId = parseInt(charUser);
-      
+
+            // Adds the character to the database
             const replyMessage = await addCharacterToDatabase(
               charName,
               charHealth,

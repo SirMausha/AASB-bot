@@ -41,7 +41,7 @@ async function viewCharacter(interaction) {
       await interaction.reply(`List of characters:\n${charString}`);
     } catch (error) {
       console.error('Error viewing characters:', error);
-      return interaction.reply('There was an error while viewing the character.');
+      return interaction.reply('There was an error while viewing the character. ERR: C4');
     }
 }
 
@@ -79,10 +79,10 @@ async function addCharacterToDatabase(name, healthMax, postureMax, etherMax, ins
     } catch (error) {
       console.error('Error adding character:', error);
       if (error.name === 'SequelizeUniqueConstraintError') {
-        return 'Character already exists!';
+        return 'Character already exists! ERR: C2';
       }
   
-      return 'Something went wrong with adding a character. Check your parameters, or reach out to Jin if the issue persists.';
+      return 'Something went wrong with adding a character. Check your parameters, or reach out to Jin if the issue persists. ERR: C3';
     }
 }
 
