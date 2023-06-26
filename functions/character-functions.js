@@ -1,16 +1,20 @@
+const user = require('../commands/testing/user');
 const { sequelize, Character } = require('../db');
 
 async function viewCharacter(interaction) {
-    let characterOwner;
+    let characterOwnerUUID;
+    // let characterOwner;
 
     if (interaction.options.getUser('user')) {
-      const user = interaction.options.getUser('user').id;
-      characterOwner = user;
+      const userUUID = interaction.options.getUser('user').id;
+      // const user = interaction.getUser;
+      characterOwnerUUID = userUUID;
+      // characterOwner = user;
     }
 
     try {
       const charList = await Character.findAll({
-        where: { uuid: characterOwner },
+        where: { uuid: characterOwnerUUID },
         raw: true,
       });
       
@@ -38,7 +42,7 @@ async function viewCharacter(interaction) {
         charString += `Attunement: ${char.attunement}\n\n`;
       }
       
-      await interaction.reply(`List of characters:\n${charString}`);
+      await interaction.reply(`${user}'s character:\n${charString}`);
     } catch (error) {
       console.error('Error viewing characters:', error);
       return interaction.reply('There was an error while viewing the character. ERR: C4');
