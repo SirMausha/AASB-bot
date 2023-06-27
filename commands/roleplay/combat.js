@@ -10,12 +10,20 @@ module.exports = {
         .setName("admin")
         .setDescription("Admin commands")
         //
-        .addSubcommand((subcommand) => subcommand.setName("placeholder"))
+        .addSubcommand((subcommand) =>
+          subcommand.setName("placeholder").setDescription("placeholder")
+        )
     )
     .addSubcommandGroup((subcommandgroup) =>
       subcommandgroup
         .setName("user")
         .setDescription("Regular user commands")
-        .addSubcommand((subcommand) => subcommand.setName("placeholder"))
+        .addSubcommand((subcommand) =>
+          subcommand.setName("placeholder").setDescription("placeholder")
+        )
     ),
+
+  async execute(interaction) {
+    await interaction.reply("cool");
+  },
 };
